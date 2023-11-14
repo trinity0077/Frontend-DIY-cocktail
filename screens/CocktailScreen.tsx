@@ -124,7 +124,13 @@ export default function HomeScreen({ navigation }) {
           (<Image style={styles.photoBookmark} source={{ uri: cocktail.strDrinkThumb }}/> ) : 
           (<Image style={styles.photo} source={{ uri: cocktail.strDrinkThumb }}/>) }
 
-            <Text style={styles.nameunderpic}>{cocktail.strDrink}  {cocktail.bookmark ?(<FontAwesome5 name="heart" size={20} color="#FF8C00" solid />): null}</Text>
+            <Text style={styles.nameunderpic}> 
+             {cocktail.bookmark ?
+             (<FontAwesome5 name="heart" size={20} color="#FF8C00" solid />):
+              null}
+              {cocktail.strDrink}
+          
+            </Text>
           </View>
         </View>
       </Pressable>
@@ -215,6 +221,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.closeButtonText}>Fermer</Text>
           </Pressable>
         </View>
+
       </Modal>
 
     </SafeAreaView>
