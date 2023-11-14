@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "DIY cocktail",
+    "slug": "DIY cocktail",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/cocktail-icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/cocktail-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FF8C00"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/cocktail-icon.png",
+        "backgroundColor": "#FF8C00"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
