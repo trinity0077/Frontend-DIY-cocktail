@@ -10,6 +10,7 @@ import GestureRecognizer from 'react-native-swipe-gestures';
 // import { useNavigation } from "@react-navigation/native";
 import Cocktailscard from "../components/Cocktailscard"
 import { Cocktail, addCocktail, addCocktailBookmark, delCocktailBookmark} from "../reducers/cocktail";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const API_ADDRESS = "https://thecocktaildb.com/api/json/v1/1/random.php";
 
@@ -26,7 +27,8 @@ export default function HomeScreen({ navigation }) {
   const [shouldUpdate, setShouldUpdate] = useState(false);
   const [modalCocktailVisible, setModalCocktailVisible] = useState(false);
 
-  
+  const insets = useSafeAreaInsets();
+  const navBarHeight = insets.top;
 
 
   function handleUpdate() {
@@ -124,12 +126,11 @@ export default function HomeScreen({ navigation }) {
           (<Image style={styles.photoBookmark} source={{ uri: cocktail.strDrinkThumb }}/> ) : 
           (<Image style={styles.photo} source={{ uri: cocktail.strDrinkThumb }}/>) }
 
-            <Text style={styles.nameunderpic}> 
-             {cocktail.bookmark ?
-             (<FontAwesome5 name="heart" size={20} color="#FF8C00" solid />):
-              null}
+            <Text style={styles.nameunderpic}>
+              {cocktail.bookmark ?
+              (<><FontAwesome5 name="heart" size={20} color="#FF8C00" solid />{' '}</>):
+                null}
               {cocktail.strDrink}
-          
             </Text>
           </View>
         </View>
@@ -172,9 +173,9 @@ export default function HomeScreen({ navigation }) {
       </View>
       
       <GestureRecognizer onSwipeLeft={onSwipeLeftHomeToFavorite}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
+      <ScrollView contentContainerStyle={{...styles.scrollView, paddingBottom: navBarHeight }}>
       <View style={styles.viewcard}>{cocktailMiniature}</View>
-            {/* <View style={styles.viewcard}>{cocktailUp}</View> */}
+        {/* test a faire sur les magin bot ou padding bot */}
       </ScrollView>
       </GestureRecognizer>
 
@@ -275,7 +276,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   scrollView: {
-    marginTop: 55,
+    marginTop: 20,
     alignItems: "center",
     width: "93%",
   },

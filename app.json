@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "DIY cocktail",
-    "slug": "DIY cocktail",
+    "name": "DIY-Cocktail",
+    "slug": "DIY-cocktail",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/cocktail-icon.png",
