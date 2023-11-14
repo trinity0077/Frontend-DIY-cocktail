@@ -25,3 +25,4 @@ Toutes les informations des recettes sont directement visibles sur cette page sa
 
 Prévision pour la suite : Redux Persist, ajout de filtres dans les favoris basés soit sur les catégories, soit sur le nom des cocktails. 
 La réflexion est en cours sur l'utilisation de boutons pré-filtrés ou d'une barre de recherche. Cependant, cela imposerait au client de connaître ce qu'il recherche, ce qui n'est pas toujours le cas.
+Voir aussi pour passé les icons en frontawsome6 et gerer l erreur typescript qu'il y a dessus.
