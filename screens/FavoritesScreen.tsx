@@ -1,19 +1,17 @@
 
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { Cocktail, addCocktail,} from "../reducers/cocktail";
-import { useIsFocused } from "@react-navigation/native";
+import { Cocktail,} from "../reducers/cocktail";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import Cocktailscard from "../components/Cocktailscard"
 
 
 export default function FavoritesScreen({ navigation }) {
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); // non utile pour le moment
   const cocktails = useSelector((state: { cocktail: { value: { listCocktails: Cocktail[] } } }) => state.cocktail.value.listCocktails);
-  const isFocused = useIsFocused();
-  const [cocktailUp, setCocktailUp] = useState([]);
+  const [cocktailUp, setCocktailUp] = useState([]); // utile pour des teste avec des donné fixé
   const [shouldUpdate, setShouldUpdate] = useState(false);
 
   function handleUpdate() {
@@ -24,7 +22,9 @@ export default function FavoritesScreen({ navigation }) {
     navigation.navigate("TabNavigator", { screen: "Home" });
   }
 
-  
+  //chargement des donner du reducer cocktails dans la cocktailscard
+  //cela va permetre d'afficher toute les recette qui sont bookmark 
+  //via le   if (cocktail.bookmark)...
   const allCocktailUp = cocktails.map((cocktail, i) => {
     if (cocktail.bookmark){
    // console.log("/////////", cocktail.bookmark)

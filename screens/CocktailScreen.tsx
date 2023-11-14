@@ -27,24 +27,29 @@ export default function HomeScreen({ navigation }) {
   const [shouldUpdate, setShouldUpdate] = useState(false);
   const [modalCocktailVisible, setModalCocktailVisible] = useState(false);
 
+  // teste pour reglé des problemes avec la mise en page. mon scrowview passe sous la navbar
   const insets = useSafeAreaInsets();
   const navBarHeight = insets.top;
 
-
+// actualise la page "home"
   function handleUpdate() {
     setShouldUpdate((prev) => !prev);
     // console.log(idCocktail, cocktails.idDrink)
   }
+  // ferme la modal de la recette , quand on suprime la recette,
+  // fonction lancer au click sur la supression dans le composant cocktailscard
+  //permet de revenir sur la page "home" et de fermer la modal qui est ouverte
   function handleUpdateDelete(){
     setModalCocktailVisible (!modalCocktailVisible);
     setSelectedCocktail(null);
   };
-
+// ouvre la fenetre avec la recette du cocktail quand on click su rl image
   function handlePressCocktail(cocktail: Cocktail) {
     setSelectedCocktail(cocktail);
     setModalCocktailVisible(true);
   }
-
+// check si le cocktail est deja bookmarké et l'ajoute ou le suprime.
+  //  pas tres jolie methode pour ajouté un cocktail en favorie dans le reducer
  function handleAddFavorie (cocktail) {
     if(!cocktail.bookmark)
     dispatch(addCocktailBookmark(cocktail.idDrink))
@@ -55,15 +60,17 @@ export default function HomeScreen({ navigation }) {
     handleUpdate();
        
   };
+  // navigation netre les pages home ver favorites
   function onSwipeLeftHomeToFavorite () {
     navigation.navigate("TabNavigator", { screen: "Favorites" });
   };
-
+//compteur retourne a 0 quand l'utilisateur demande  un +
   const handleFetchSixMore = () => {
     setFetchCount(0);
   };
 
-  // usefeect qui permet quand on revient sur la page 'isFocused' de fech  les course add par l utilisateur
+  // usefeect qui permet  de fech  les cocktails et se relance si le conteur reviens a 0
+  // ce qui arrive quand l'utilisateur demande plus de cocktails
   useEffect(() => {
     const getCocktailApi = async () => {
       try {
