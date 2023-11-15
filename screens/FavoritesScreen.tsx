@@ -58,7 +58,7 @@ export default function FavoritesScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Favorite</Text>
-      <GestureRecognizer style={styles.container} onSwipeRight={onSwipeRightHomeToFavorite}>
+      <GestureRecognizer style={styles.containerScrollView} onSwipeRight={onSwipeRightHomeToFavorite}>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.viewcard}>{allCocktailUp}</View>
       </ScrollView>
@@ -69,19 +69,26 @@ export default function FavoritesScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-   
     flex: 1,
     width:"100%",
     backgroundColor: "#f2f2f2",
     alignItems: "center",
+    paddingTop: 20,
+    paddingBottom:10,
   },
   title: {
     width: "80%",
-    marginTop: 20,
+   
     textAlign: "center",
     fontSize: 38,
     fontWeight: "600",
     color: "#FF8C00",
+  },
+  containerScrollView:{
+    flex: 1,
+    width:"100%",
+    backgroundColor: "#f2f2f2",
+    alignItems: "center",
   },
   scrollView: {
     alignItems: "center",

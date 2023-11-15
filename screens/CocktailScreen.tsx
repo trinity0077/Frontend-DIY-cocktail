@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, StyleSheet, Text, View, 
-  Pressable, 
-  Modal,
-  Image, } from "react-native";
+  Pressable, TextInput, Modal, Image, TouchableOpacity, } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useIsFocused } from "@react-navigation/native";
@@ -24,16 +22,56 @@ export default function HomeScreen({ navigation }) {
   // const navigation = useNavigation();
   const [fetchCount, setFetchCount] = useState(0);
   const [cocktailMiniature, setCocktailMiniature] = useState([]);
-  const [shouldUpdate, setShouldUpdate] = useState(false);
+  const [shouldUpdateFromCocktailCard, sethouldUpdateFromCocktailCard] = useState(false);
   const [modalCocktailVisible, setModalCocktailVisible] = useState(false);
+  // setter poru bar de recherche et bouton
+  const [modalSearch,setModalSearch] = useState(false);
+  const [searchType, setSearchType] = useState("");
+  const [onSearchByName,setOnSearchByName] = useState(false);
+  const [onSearchByCategory,setOnSearchByCategory] = useState(false);
+  const [onSearchByIngredient,setOnSearchByIngredient] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
+/////////// action en rapport avec la recherche ////////////////////
+
+function handleSearchButtonNom(){
+  setOnSearchByName(!onSearchByName)
+  setOnSearchByCategory(false)
+  setOnSearchByIngredient(false)
+  if(onSearchByName){
+    setSearchType("name")
+  }
+}
+function handleSearchButtonCategory(){
+  setOnSearchByName(false)
+  setOnSearchByCategory(!onSearchByCategory)
+  setOnSearchByIngredient(false)
+  if(onSearchByCategory){
+    setSearchType("category")
+  }
+}
+function handleSearchButtonIngredient(){
+  setOnSearchByName(false)
+  setOnSearchByCategory(false)
+  setOnSearchByIngredient(!onSearchByIngredient)
+  if(onSearchByIngredient){
+    setSearchType("ingredient")
+  }
+}
+
+
+
+////////////////////////////////////////////////////////////////////
   // teste pour reglé des problemes avec la mise en page. mon scrowview passe sous la navbar
   const insets = useSafeAreaInsets();
   const navBarHeight = insets.top;
-
+// appuie sur l'icone recherche, ouvre les option de recherche
+function handleOnSearchIcon(){
+  setModalSearch(!modalSearch)
+}
 // actualise la page "home"
   function handleUpdate() {
-    setShouldUpdate((prev) => !prev);
+    sethouldUpdateFromCocktailCard((prev) => !prev);
     // console.log(idCocktail, cocktails.idDrink)
   }
   // ferme la modal de la recette , quand on suprime la recette,
@@ -111,15 +149,21 @@ export default function HomeScreen({ navigation }) {
         getCocktailApi();
       }, delay);
     }
-  }, [fetchCount]); // isFocused, shouldUpdate
+  }, [fetchCount]); // isFocused, shouldUpdateFromCocktailCard
 
 
-
+///  mes a jour les mini card dans le scrolling view soit soit sur toute les cards
+/// ou sur la recherche qui a etait tapé.
   useEffect(() => {
-    const allCocktailMiniature = cocktails.map((cocktail) => (
+    const filteredCocktails = cocktails.filter((cocktail) =>
+    cocktail.strDrink.toLowerCase().includes(searchText.toLowerCase()) ||
+    cocktail.strCategory.toLowerCase().includes(searchText.toLowerCase()) ||
+    cocktail.strIngredient1.toLowerCase().includes(searchText.toLowerCase())
+  );
+  
+  const allCocktailMiniature = filteredCocktails.map((cocktail) => (
 
     <GestureRecognizer key={cocktail.idDrink}
-    //  onSwipeDown={handleFetchSixMore} trop de fetch a testé plus tard
      >
       <Pressable
         // style={styles.buttonProfileModale}
@@ -145,7 +189,7 @@ export default function HomeScreen({ navigation }) {
       </GestureRecognizer>
     ));
     setCocktailMiniature(allCocktailMiniature);
-  }, [cocktails, shouldUpdate]);
+  }, [cocktails, shouldUpdateFromCocktailCard, searchText]);
    
 
 
@@ -155,14 +199,13 @@ export default function HomeScreen({ navigation }) {
            
       <View style={styles.containerTitle}>
        
-         <Pressable
-           
+         <Pressable       
             style={styles.ButtonFetchMini}
             onPress={() => {
-              handleFetchSixMore()
+              handleOnSearchIcon() // ouvre la modal de recherche
             }}
             >
-          <FontAwesome5 name="plus" size={30} color="#FF8C00" />
+          <FontAwesome5 name="search" size={30} color="#FF8C00" />
          
           </Pressable>
 
@@ -178,11 +221,69 @@ export default function HomeScreen({ navigation }) {
           </Pressable>
            
       </View>
-      
+      {modalSearch ?
+              
+          <View style={styles.containerModalSearchbar}>
+           <View style={styles.containerSearchbar}>
+            <View>
+              <View style={styles.containerButtonSearchInModalSearch} >
+                {/* <View> */}
+                {/* <View style={styles.containerButtonDeleteFavorie} > */}
+                  <Pressable
+                    onPress={() => handleSearchButtonNom()}
+                    style={[
+                      styles.buttonSearchInModalSearch,
+                      onSearchByName && styles.activeButton,
+                    ]}
+                  >
+                    <Text style={styles.textSearchButton}>Nom</Text>
+                  </Pressable>
+                  {/* </View> */}
+                {/* </View> */}
+                {/* <View>  */}
+                {/* <View style={styles.containerButtonSearchInModalSearch} > */}
+                  <Pressable
+                    onPress={() => handleSearchButtonIngredient()}
+                    style={[
+                      styles.buttonSearchInModalSearch,
+                      onSearchByIngredient && styles.activeButton,
+                    ]}
+                  >
+                    <Text style={styles.textSearchButton}>ingredient</Text>
+                  </Pressable>
+                  {/* </View> */}
+                {/* </View> */}
+                {/* <View> */}
+                {/* <View style={styles.containerButtonSearchInModalSearch} > */}
+                  <Pressable
+                    onPress={() => handleSearchButtonCategory()}
+                    style={[
+                      styles.buttonSearchInModalSearch,
+                      onSearchByCategory && styles.activeButton,
+                    ]}
+                  >
+                    <Text style={styles.textSearchButton}>catégorie</Text>
+                  </Pressable>
+                  {/* </View> */}
+                {/* </View> */}
+              </View>
+            </View>
+              <TextInput
+                  style={styles.searchInput}
+                  placeholder="Rechercher un cocktail dans le reducer"
+                  value={searchText}
+                  onChangeText={(text) => setSearchText(text)}
+                />
+            </View>
+          </View>
+
+              
+              :
+                null}
       <GestureRecognizer onSwipeLeft={onSwipeLeftHomeToFavorite}>
-      <ScrollView contentContainerStyle={{...styles.scrollView, paddingBottom: navBarHeight }}>
+      <ScrollView contentContainerStyle={styles.scrollView}>
       <View style={styles.viewcard}>{cocktailMiniature}</View>
-        {/* test a faire sur les magin bot ou padding bot */}
+        {/* test a faire sur les margin bot ou padding bot */}
       </ScrollView>
       </GestureRecognizer>
 
@@ -242,11 +343,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f2",
     alignItems: "center",
     paddingTop: 20,
+   
   },
   containerTitle:{
     flexDirection: "row",
-
-    zIndex: 2, // Assurer que le titre reste au-dessus du contenu défilant
     justifyContent: "center",
     alignItems: "center",
     gap:3,
@@ -254,10 +354,9 @@ const styles = StyleSheet.create({
 
   title: {
     // borderColor: "#000CC2", // ajout test centrage div
-    // borderWidth: 1,   // ajout test centrage div
-    height:50,
+    // borderWidth: 1,   // ajout test centrage div 
     width: "50%",
-    marginTop: 20,
+    justifyContent:"center", 
     textAlign: "center",
     fontSize: 38,
     fontWeight: "600",
@@ -268,8 +367,7 @@ const styles = StyleSheet.create({
     // width: "10%",
     // borderColor: "#000CC2", // ajout test centrage div
     // borderWidth: 1,   // ajout test centrage div
-    marginTop: 20,
-    height:50,
+    marginTop: 10,
     justifyContent:"center",
     alignContent:"center",
      color: "#FF8C00",
@@ -283,12 +381,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   scrollView: {
-    marginTop: 20,
     alignItems: "center",
     width: "93%",
   },
 
   viewcard: {
+    marginBottom:"17%",
     width: "100%",
     flexDirection: "row", // Pour organiser les éléments en ligne
     flexWrap: "wrap", // Permet au contenu de passer à la ligne en cas de manque d'espace
@@ -397,4 +495,61 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+
+
+/////////// MODAL SEARCH BAR //////
+                                  ///////////////////
+
+containerModalSearchbar:{
+width:"100%",
+borderColor: "#000CC2", // ajout test centrage div
+borderWidth: 1,   // ajout test centrage div
+},
+containerSearchbar:{
+  flexDirection:"column",
+  justifyContent: "center",
+  alignItems: "center",
+},
+searchInput: {
+  height: 40,
+  borderColor: '#FF8C00',
+  borderWidth: 1,
+  borderRadius: 50,
+  margin: 10,
+  padding: 10,
+  color:"#474CCC",
+},
+containerButtonSearchInModalSearch:{
+  flexDirection:"row",
+  justifyContent: "space-between",
+  width:"80%",
+  // borderColor: "#000CC2", // ajout test centrage div
+// borderWidth: 1,   // ajout test centrage div
+},
+buttonSearchInModalSearch:{
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: 10,
+  borderColor: "#FF8C00",
+  borderWidth: 1,
+  width: 100,
+  paddingTop: 4,
+  borderRadius: 50,
+},
+
+
+textSearchButton:{
+  color: "#474CCC",
+  height: 30,
+  fontSize: 16,
+},
+activeButton: {
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: 10,
+  backgroundColor: "#FF8C00",
+  width: 100,
+  paddingTop: 4,
+  borderRadius: 50,
+},
 });
