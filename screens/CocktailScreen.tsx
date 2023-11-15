@@ -40,6 +40,9 @@ function handleSearchButtonNom(){
   setOnSearchByIngredient(false)
   if(onSearchByName){
     setSearchType("name")
+    setSearchText(searchText)
+  } else {
+    setSearchType("")
   }
 }
 function handleSearchButtonCategory(){
@@ -48,6 +51,9 @@ function handleSearchButtonCategory(){
   setOnSearchByIngredient(false)
   if(onSearchByCategory){
     setSearchType("category")
+    setSearchText(searchText)
+  } else {
+    setSearchType("")
   }
 }
 function handleSearchButtonIngredient(){
@@ -56,6 +62,9 @@ function handleSearchButtonIngredient(){
   setOnSearchByIngredient(!onSearchByIngredient)
   if(onSearchByIngredient){
     setSearchType("ingredient")
+    setSearchText(searchText)
+  } else {
+    setSearchType("")
   }
 }
 
@@ -155,12 +164,36 @@ function handleOnSearchIcon(){
 ///  mes a jour les mini card dans le scrolling view soit soit sur toute les cards
 /// ou sur la recherche qui a etait tapé.
   useEffect(() => {
-    const filteredCocktails = cocktails.filter((cocktail) =>
-    cocktail.strDrink.toLowerCase().includes(searchText.toLowerCase()) ||
-    cocktail.strCategory.toLowerCase().includes(searchText.toLowerCase()) ||
-    cocktail.strIngredient1.toLowerCase().includes(searchText.toLowerCase())
-  );
-  
+    const filteredCocktails = cocktails.filter((cocktail) => {
+    const nameMatch = cocktail.strDrink.toLowerCase().includes(searchText.toLowerCase());
+    const categoryMatch = cocktail.strAlcoholic.toLowerCase().includes(searchText.toLowerCase());
+    const ingredientMatch = (
+      cocktail.strIngredient1.toLowerCase().includes(searchText.toLowerCase()) ||
+      cocktail.strIngredient2.toLowerCase().includes(searchText.toLowerCase()) ||
+      cocktail.strIngredient3.toLowerCase().includes(searchText.toLowerCase()) ||
+      cocktail.strIngredient4.toLowerCase().includes(searchText.toLowerCase()) ||
+      cocktail.strIngredient5.toLowerCase().includes(searchText.toLowerCase()) 
+    
+    )
+    if (onSearchByName && nameMatch) {
+      return true;
+    }
+
+    if (onSearchByCategory && categoryMatch) {
+      return true;
+    }
+
+    if (onSearchByIngredient && ingredientMatch) {
+      return true;
+    }
+
+    // Si aucun bouton n'est activé, recherche partout
+    if (!onSearchByName && !onSearchByCategory && !onSearchByIngredient) {
+      return nameMatch || categoryMatch || ingredientMatch;
+    }
+
+    return false;
+  });
   const allCocktailMiniature = filteredCocktails.map((cocktail) => (
 
     <GestureRecognizer key={cocktail.idDrink}
@@ -189,7 +222,7 @@ function handleOnSearchIcon(){
       </GestureRecognizer>
     ));
     setCocktailMiniature(allCocktailMiniature);
-  }, [cocktails, shouldUpdateFromCocktailCard, searchText]);
+  }, [cocktails, shouldUpdateFromCocktailCard, searchText, searchType]);
    
 
 
