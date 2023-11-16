@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useIsFocused } from "@react-navigation/native";
 import GestureRecognizer from 'react-native-swipe-gestures';
-// import { useNavigation } from "@react-navigation/native";
+import { Keyboard, Platform } from 'react-native';
 import Cocktailscard from "../components/Cocktailscard"
 import { Cocktail, addCocktail, addCocktailBookmark, delCocktailBookmark} from "../reducers/cocktail";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,34 +38,21 @@ function handleSearchButtonNom(){
   setOnSearchByName(!onSearchByName)
   setOnSearchByCategory(false)
   setOnSearchByIngredient(false)
-  if(onSearchByName){
-    setSearchType("name")
-    setSearchText(searchText)
-  } else {
-    setSearchType("")
-  }
+  setSearchText(searchText)
 }
 function handleSearchButtonCategory(){
   setOnSearchByName(false)
   setOnSearchByCategory(!onSearchByCategory)
   setOnSearchByIngredient(false)
-  if(onSearchByCategory){
-    setSearchType("category")
-    setSearchText(searchText)
-  } else {
-    setSearchType("")
-  }
+  setSearchText(searchText)
+
 }
 function handleSearchButtonIngredient(){
   setOnSearchByName(false)
   setOnSearchByCategory(false)
   setOnSearchByIngredient(!onSearchByIngredient)
-  if(onSearchByIngredient){
-    setSearchType("ingredient")
-    setSearchText(searchText)
-  } else {
-    setSearchType("")
-  }
+  setSearchText(searchText)
+
 }
 
 
@@ -114,6 +101,39 @@ function handleOnSearchIcon(){
     setFetchCount(0);
   };
 
+  /////////////////////////////////////////////////////////////////
+  ////////////// gestion de la bare de navigation quand le clavier s'active
+
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        // Le clavier s'est ouvert, masquez la barre de navigation ici
+        if (Platform.OS === 'android') {
+          navigation.setOptions({ tabBarVisible: false });
+        }
+      }
+    );
+  
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        // Le clavier s'est fermé, réaffichez la barre de navigation ici
+        if (Platform.OS === 'android') {
+          navigation.setOptions({ tabBarVisible: true });
+        }
+      }
+    );
+  
+    // Nettoyez les écouteurs d'événements lorsque le composant est démonté
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, [navigation]);
+
+
   // usefeect qui permet  de fech  les cocktails et se relance si le conteur reviens a 0
   // ce qui arrive quand l'utilisateur demande plus de cocktails
   useEffect(() => {
@@ -159,7 +179,7 @@ function handleOnSearchIcon(){
   }, [fetchCount]); // isFocused, shouldUpdateFromCocktailCard
 
 
-///  mes a jour les mini card dans le scrolling view soit soit sur toute les cards
+///  mes a jour les mini card dans le scrolling view soit sur toute les cards
 /// ou sur la recherche qui a etait tapé.
   useEffect(() => {
     const filteredCocktails = cocktails.filter((cocktail) => {
@@ -219,8 +239,9 @@ function handleOnSearchIcon(){
       </Pressable>
       </GestureRecognizer>
     ));
+    console.log(allCocktailMiniature.length)
     setCocktailMiniature(allCocktailMiniature);
-  }, [cocktails, shouldUpdateFromCocktailCard, searchText, searchType]);
+  }, [cocktails, shouldUpdateFromCocktailCard, searchText, onSearchByName, onSearchByCategory, onSearchByIngredient]);
    
 
 
@@ -533,8 +554,8 @@ const styles = StyleSheet.create({
 
 containerModalSearchbar:{
 width:"100%",
-borderColor: "#000CC2", // ajout test centrage div
-borderWidth: 1,   // ajout test centrage div
+// borderColor: "#000CC2", // ajout test centrage div
+// borderWidth: 1,   // ajout test centrage div
 },
 containerSearchbar:{
   flexDirection:"column",
