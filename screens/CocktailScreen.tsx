@@ -71,9 +71,7 @@ function handleSearchButtonIngredient(){
 
 
 ////////////////////////////////////////////////////////////////////
-  // teste pour reglé des problemes avec la mise en page. mon scrowview passe sous la navbar
-  const insets = useSafeAreaInsets();
-  const navBarHeight = insets.top;
+
 // appuie sur l'icone recherche, ouvre les option de recherche
 function handleOnSearchIcon(){
   setModalSearch(!modalSearch)
