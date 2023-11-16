@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useIsFocused } from "@react-navigation/native";
 import GestureRecognizer from 'react-native-swipe-gestures';
-import { Keyboard, Platform } from 'react-native';
+import { Keyboard, Platform } from 'react-native'; // gestion de la bar de navigation
 import Cocktailscard from "../components/Cocktailscard"
 import { Cocktail, addCocktail, addCocktailBookmark, delCocktailBookmark} from "../reducers/cocktail";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 const API_ADDRESS = "https://thecocktaildb.com/api/json/v1/1/random.php";
 
@@ -31,6 +31,8 @@ export default function HomeScreen({ navigation }) {
   const [onSearchByCategory,setOnSearchByCategory] = useState(false);
   const [onSearchByIngredient,setOnSearchByIngredient] = useState(false);
   const [searchText, setSearchText] = useState("");
+  // ecoute sur la bar de recherche, afin d'activé ou non le bar de navigation
+  const [searchBarActive, setSearchBarActive] = useState(false);
 
 /////////// action en rapport avec la recherche ////////////////////
 
@@ -54,7 +56,6 @@ function handleSearchButtonIngredient(){
   setSearchText(searchText)
 
 }
-
 
 
 ////////////////////////////////////////////////////////////////////
@@ -104,24 +105,28 @@ function handleOnSearchIcon(){
   /////////////////////////////////////////////////////////////////
   ////////////// gestion de la bare de navigation quand le clavier s'active
 
-
+// en cour de test infructueux  !!!
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
       () => {
         // Le clavier s'est ouvert, masquez la barre de navigation ici
-        if (Platform.OS === 'android') {
-          navigation.setOptions({ tabBarVisible: false });
+        if (Platform.OS === 'android' || Platform.OS === 'ios') {
+          if (!searchBarActive) {
+            navigation.setOptions({ tabBarVisible: false });
+          }
         }
       }
     );
-  
+
     const keyboardDidHideListener = Keyboard.addListener(
       'keyboardDidHide',
       () => {
         // Le clavier s'est fermé, réaffichez la barre de navigation ici
-        if (Platform.OS === 'android') {
-          navigation.setOptions({ tabBarVisible: true });
+        if (Platform.OS === 'android' || Platform.OS === 'ios') {
+          if (!searchBarActive) {
+            navigation.setOptions({ tabBarVisible: true });
+          }
         }
       }
     );
@@ -133,6 +138,10 @@ function handleOnSearchIcon(){
     };
   }, [navigation]);
 
+  const HandleSearchBar = () => {
+    setSearchBarActive(!searchBarActive);
+    console.log('searchbar active or not',searchBarActive)
+  };
 
   // usefeect qui permet  de fech  les cocktails et se relance si le conteur reviens a 0
   // ce qui arrive quand l'utilisateur demande plus de cocktails
@@ -279,8 +288,6 @@ function handleOnSearchIcon(){
            <View style={styles.containerSearchbar}>
             <View>
               <View style={styles.containerButtonSearchInModalSearch} >
-                {/* <View> */}
-                {/* <View style={styles.containerButtonDeleteFavorie} > */}
                   <Pressable
                     onPress={() => handleSearchButtonNom()}
                     style={[
@@ -290,10 +297,6 @@ function handleOnSearchIcon(){
                   >
                     <Text style={styles.textSearchButton}>Nom</Text>
                   </Pressable>
-                  {/* </View> */}
-                {/* </View> */}
-                {/* <View>  */}
-                {/* <View style={styles.containerButtonSearchInModalSearch} > */}
                   <Pressable
                     onPress={() => handleSearchButtonIngredient()}
                     style={[
@@ -303,10 +306,6 @@ function handleOnSearchIcon(){
                   >
                     <Text style={styles.textSearchButton}>ingredient</Text>
                   </Pressable>
-                  {/* </View> */}
-                {/* </View> */}
-                {/* <View> */}
-                {/* <View style={styles.containerButtonSearchInModalSearch} > */}
                   <Pressable
                     onPress={() => handleSearchButtonCategory()}
                     style={[
@@ -316,20 +315,22 @@ function handleOnSearchIcon(){
                   >
                     <Text style={styles.textSearchButton}>catégorie</Text>
                   </Pressable>
-                  {/* </View> */}
-                {/* </View> */}
               </View>
             </View>
+            <View style={styles.ContainerpressablesearchInput}>
+            <Pressable onPress={HandleSearchBar} 
+           style={styles.searchInput}
+           >
               <TextInput
-                  style={styles.searchInput}
+                  // style={styles.searchInput}
                   placeholder="Rechercher un cocktail dans le reducer"
                   value={searchText}
                   onChangeText={(text) => setSearchText(text)}
                 />
+            </Pressable>
             </View>
           </View>
-
-              
+        </View>
               :
                 null}
       <GestureRecognizer onSwipeLeft={onSwipeLeftHomeToFavorite}>
@@ -561,6 +562,11 @@ containerSearchbar:{
   flexDirection:"column",
   justifyContent: "center",
   alignItems: "center",
+},
+
+ContainerpressablesearchInput:{
+  flexDirection:"row",
+  width:"60%"
 },
 searchInput: {
   height: 40,
