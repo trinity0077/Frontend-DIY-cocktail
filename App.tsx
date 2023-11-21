@@ -6,14 +6,14 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 import HomeScreen from "./screens/CocktailScreen";
 import FavoritesScreen from "./screens/FavoritesScreen";
-import Cocktailscard from "./components/Cocktailscard";
+import Cocktailscard from "./src/components/Cocktailscard";
 
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import { userSlice } from "./reducers/cocktail";
 
 const store = configureStore({
-  reducer: { cocktail : userSlice.reducer },
+  reducer: { cocktail: userSlice.reducer },
 });
 
 const Stack = createNativeStackNavigator();
@@ -32,11 +32,14 @@ const TabNavigator = () => {
             iconName = "heart";
           }
 
-          return <FontAwesome5 name={iconName} size={size} color={color} />;
+          return (
+            <FontAwesome5 name={iconName} size={size} color={color} solid />
+          );
         },
         tabBarActiveTintColor: "#FF8C00",
-        tabBarInactiveTintColor: "#335561",
+        tabBarInactiveTintColor: "gray",
         headerShown: false,
+        tabBarShowLabel: false,
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -51,10 +54,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="TabNavigator" component={TabNavigator} />
-          {/* <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Favorites" component={FavoritesScreen} /> */}
           <Stack.Screen name="Cocktailscard" component={Cocktailscard} />
-
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>

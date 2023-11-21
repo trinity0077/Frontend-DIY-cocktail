@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface Cocktail {
   idDrink: string | "" ;
   bookmark: boolean | false;
+  visited: boolean | false;
   strDrink: string | "" ;
   strCategory: string | "" ;
   strAlcoholic: string | "" ;
@@ -46,9 +47,7 @@ export const userSlice = createSlice({
       // Si l'index est trouvé, mettre à jour la propriété bookmark
       if (index !== -1) {
         state.value.listCocktails[index].bookmark = true;
-      } else {
-
-      }
+      } 
     },
 
     delCocktailBookmark: (state, action: PayloadAction<string>) => {
@@ -58,9 +57,17 @@ export const userSlice = createSlice({
       // Si l'index est trouvé, mettre à jour la propriété bookmark
       if (index !== -1) {
         state.value.listCocktails[index].bookmark = false;
-      } else {
+      } 
+    },
 
-      }
+    addCocktailVisited: (state, action: PayloadAction<string>) => {
+      // Trouver l'index du cocktail dans le tableau
+      const index = state.value.listCocktails.findIndex(cocktail => cocktail.idDrink === action.payload);
+
+      // Si l'index est trouvé, mettre à jour la propriété visited
+      if (index !== -1) {
+        state.value.listCocktails[index].visited = true;
+      } 
     },
 
     addCocktail: (state, action : PayloadAction<Cocktail> ) => {
@@ -89,6 +96,7 @@ export const userSlice = createSlice({
   state.value.listCocktails.unshift({
     ...sanitizedCocktail,
     bookmark: false,
+    visited: false,
   });
       //console.logg('reducer a addCocktail',action.payload)
     },
@@ -103,6 +111,7 @@ export const {
   removeCocktail,
   addCocktailBookmark,
   delCocktailBookmark,
+  addCocktailVisited,
 
 
 } = userSlice.actions;

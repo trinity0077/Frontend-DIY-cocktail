@@ -1,70 +1,79 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, 
-  Pressable, TextInput, Modal, Image, TouchableOpacity, } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  TextInput,
+  Modal,
+  Image,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useIsFocused } from "@react-navigation/native";
-import GestureRecognizer from 'react-native-swipe-gestures';
-import { Keyboard, Platform } from 'react-native'; // gestion de la bar de navigation
-import Cocktailscard from "../components/Cocktailscard"
-import { Cocktail, addCocktail, addCocktailBookmark, delCocktailBookmark} from "../reducers/cocktail";
-
-
-const API_ADDRESS = "https://thecocktaildb.com/api/json/v1/1/random.php";
+import GestureRecognizer from "react-native-swipe-gestures";
+import Cocktailscard from "../src/components/Cocktailscard";
+import { getCocktailApi } from "../src/modules/getCocktailApi";
+import {
+  Cocktail,
+  addCocktailBookmark,
+  delCocktailBookmark,
+  addCocktailVisited,
+} from "../reducers/cocktail";
 
 
 
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
-  const cocktails = useSelector((state: { cocktail: { value: { listCocktails: Cocktail[] } } }) => state.cocktail.value.listCocktails);
-  const [selectedCocktail, setSelectedCocktail] = useState<Cocktail | null>(null);
-  const isFocused = useIsFocused();
-  // const navigation = useNavigation();
+  const cocktails = useSelector(
+    (state: { cocktail: { value: { listCocktails: Cocktail[] } } }) =>
+      state.cocktail.value.listCocktails
+  );
+  const [selectedCocktail, setSelectedCocktail] = useState<Cocktail | null>(
+    null
+  );
   const [fetchCount, setFetchCount] = useState(0);
   const [cocktailMiniature, setCocktailMiniature] = useState([]);
-  const [shouldUpdateFromCocktailCard, sethouldUpdateFromCocktailCard] = useState(false);
+  const [shouldUpdateFromCocktailCard, sethouldUpdateFromCocktailCard] =
+    useState(false);
   const [modalCocktailVisible, setModalCocktailVisible] = useState(false);
-  // setter poru bar de recherche et bouton
-  const [modalSearch,setModalSearch] = useState(false);
-  const [searchType, setSearchType] = useState("");
-  const [onSearchByName,setOnSearchByName] = useState(false);
-  const [onSearchByCategory,setOnSearchByCategory] = useState(false);
-  const [onSearchByIngredient,setOnSearchByIngredient] = useState(false);
+  // setter pour la bar et les boutons relative à la recherche
+  const [modalSearch, setModalSearch] = useState(false);
+  const [onSearchByName, setOnSearchByName] = useState(false);
+  const [onSearchByCategory, setOnSearchByCategory] = useState(false);
+  const [onSearchByIngredient, setOnSearchByIngredient] = useState(false);
   const [searchText, setSearchText] = useState("");
-  // ecoute sur la bar de recherche, afin d'activé ou non le bar de navigation
-  const [searchBarActive, setSearchBarActive] = useState(false);
 
-/////////// action en rapport avec la recherche ////////////////////
+  /////////// action en rapport avec la recherche ////////////////////
 
-function handleSearchButtonNom(){
-  setOnSearchByName(!onSearchByName)
-  setOnSearchByCategory(false)
-  setOnSearchByIngredient(false)
-  setSearchText(searchText)
-}
-function handleSearchButtonCategory(){
-  setOnSearchByName(false)
-  setOnSearchByCategory(!onSearchByCategory)
-  setOnSearchByIngredient(false)
-  setSearchText(searchText)
+  function handleSearchButtonNom() {
+    setOnSearchByName(!onSearchByName);
+    setOnSearchByCategory(false);
+    setOnSearchByIngredient(false);
+    setSearchText(searchText);
+  }
+  function handleSearchButtonCategory() {
+    setOnSearchByName(false);
+    setOnSearchByCategory(!onSearchByCategory);
+    setOnSearchByIngredient(false);
+    setSearchText(searchText);
+  }
+  function handleSearchButtonIngredient() {
+    setOnSearchByName(false);
+    setOnSearchByCategory(false);
+    setOnSearchByIngredient(!onSearchByIngredient);
+    setSearchText(searchText);
+  }
 
-}
-function handleSearchButtonIngredient(){
-  setOnSearchByName(false)
-  setOnSearchByCategory(false)
-  setOnSearchByIngredient(!onSearchByIngredient)
-  setSearchText(searchText)
+  ////////////////////////////////////////////////////////////////////
 
-}
-
-
-////////////////////////////////////////////////////////////////////
-
-// appuie sur l'icone recherche, ouvre les option de recherche
-function handleOnSearchIcon(){
-  setModalSearch(!modalSearch)
-}
-// actualise la page "home"
+  // appuie sur l'icone recherche, ouvre les option de recherche
+  function handleOnSearchIcon() {
+    setModalSearch(!modalSearch);
+  }
+  // actualise la page "home" quand on met a jour la cardcocktail
   function handleUpdate() {
     sethouldUpdateFromCocktailCard((prev) => !prev);
     // console.log(idCocktail, cocktails.idDrink)
@@ -72,276 +81,252 @@ function handleOnSearchIcon(){
   // ferme la modal de la recette , quand on suprime la recette,
   // fonction lancer au click sur la supression dans le composant cocktailscard
   //permet de revenir sur la page "home" et de fermer la modal qui est ouverte
-  function handleUpdateDelete(){
-    setModalCocktailVisible (!modalCocktailVisible);
+  function handleUpdateDelete() {
+    setModalCocktailVisible(!modalCocktailVisible);
     setSelectedCocktail(null);
-  };
-// ouvre la fenetre avec la recette du cocktail quand on click su rl image
+  }
+  // ouvre la fenetre avec la recette du cocktail quand on click su rl image
   function handlePressCocktail(cocktail: Cocktail) {
     setSelectedCocktail(cocktail);
     setModalCocktailVisible(true);
+    dispatch(addCocktailVisited(cocktail.idDrink));
   }
-// check si le cocktail est deja bookmarké et l'ajoute ou le suprime.
+  // check si le cocktail est deja bookmarké et l'ajoute ou le suprime.
   //  pas tres jolie methode pour ajouté un cocktail en favorie dans le reducer
- function handleAddFavorie (cocktail) {
-    if(!cocktail.bookmark)
-    dispatch(addCocktailBookmark(cocktail.idDrink))
-  else(
-    dispatch(delCocktailBookmark(cocktail.idDrink))
-  )
-   
+  function handleAddFavorie(cocktail) {
+    if (!cocktail.bookmark) dispatch(addCocktailBookmark(cocktail.idDrink));
+    else dispatch(delCocktailBookmark(cocktail.idDrink));
+
     handleUpdate();
-       
-  };
+  }
   // navigation netre les pages home ver favorites
-  function onSwipeLeftHomeToFavorite () {
+  function onSwipeLeftHomeToFavorite() {
     navigation.navigate("TabNavigator", { screen: "Favorites" });
-  };
-//compteur retourne a 0 quand l'utilisateur demande  un +
+  }
+  //compteur retourne a 0 quand l'utilisateur demande + de cocktail
   const handleFetchSixMore = () => {
     setFetchCount(0);
   };
-
-  /////////////////////////////////////////////////////////////////
-  ////////////// gestion de la bare de navigation quand le clavier s'active
-
-// en cour de test infructueux  !!!
+  // Fetch data from Api and dispatch in reducer cocktail
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        // Le clavier s'est ouvert, masquez la barre de navigation ici
-        if (Platform.OS === 'android' || Platform.OS === 'ios') {
-          if (!searchBarActive) {
-            navigation.setOptions({ tabBarVisible: false });
-          }
-        }
-      }
-    );
-
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        // Le clavier s'est fermé, réaffichez la barre de navigation ici
-        if (Platform.OS === 'android' || Platform.OS === 'ios') {
-          if (!searchBarActive) {
-            navigation.setOptions({ tabBarVisible: true });
-          }
-        }
-      }
-    );
-  
-    // Nettoyez les écouteurs d'événements lorsque le composant est démonté
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, [navigation]);
-
-  const HandleSearchBar = () => {
-    setSearchBarActive(!searchBarActive);
-    console.log('searchbar active or not',searchBarActive)
-  };
-
-  // usefeect qui permet  de fech  les cocktails et se relance si le conteur reviens a 0
-  // ce qui arrive quand l'utilisateur demande plus de cocktails
-  useEffect(() => {
-    const getCocktailApi = async () => {
+    const fetchDataWithModuleGetCocktailApi = async () => {
       try {
-        const response = await fetch(API_ADDRESS);
-        const data = await response.json();
-
-        if (data.drinks && data.drinks.length > 0) {
-          const newCocktail = data.drinks[0];
-          const isCocktailExists = cocktails.find(
-            (cocktail) => cocktail.idDrink === newCocktail.idDrink
-          );
-
-          if (!isCocktailExists) {
-            //console.logg('data du fetch api', newCocktail)
-            // Dispatchez uniquement si le cocktail n'existe pas encore dans la 
-            // liste utilisation possible futur
-            dispatch(addCocktail(newCocktail));
-            // Ajoute ce cocktail pour l'affichage directement à l'écran
-            setFetchCount((prev) => prev + 1)
-          } else {
-            console.log( 
-              "Cocktail already exists in Redux state restarting fetch"
-            ); 
-          }
+        const addedSuccessfully = await getCocktailApi(dispatch, cocktails);
+        if (addedSuccessfully) {
+          setFetchCount((prev) => prev + 1);
         } else {
-          console.error("No drinks data found");
+          fetchDataWithModuleGetCocktailApi();
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching data:', error);
       }
-    };
+    };   
+      if (fetchCount < 7) {
+        const delay = 160;
+        setTimeout(() => {
+          fetchDataWithModuleGetCocktailApi();
+        }, delay); 
+      }
+  }, [fetchCount]),
 
-
-    if (isFocused && fetchCount < 7) {
-      
-      const delay = 160;
-      setTimeout(() => {
-        getCocktailApi();
-      }, delay);
-    }
-  }, [fetchCount]); // isFocused, shouldUpdateFromCocktailCard
-
-
-///  mes a jour les mini card dans le scrolling view soit sur toute les cards
-/// ou sur la recherche qui a etait tapé.
+  // Update les minicard dans le scrolling view en correlation avec la recherche.
+  // indique aussi le style des images en rapport au favorie / visit ou jamais vu.
   useEffect(() => {
     const filteredCocktails = cocktails.filter((cocktail) => {
-    const nameMatch = cocktail.strDrink.toLowerCase().includes(searchText.toLowerCase());
-    const categoryMatch = cocktail.strAlcoholic.toLowerCase().includes(searchText.toLowerCase());
-    const ingredientMatch = (
-      cocktail.strIngredient1.toLowerCase().includes(searchText.toLowerCase()) ||
-      cocktail.strIngredient2.toLowerCase().includes(searchText.toLowerCase()) ||
-      cocktail.strIngredient3.toLowerCase().includes(searchText.toLowerCase()) ||
-      cocktail.strIngredient4.toLowerCase().includes(searchText.toLowerCase()) ||
-      cocktail.strIngredient5.toLowerCase().includes(searchText.toLowerCase()) 
-    
-    )
-    if (onSearchByName && nameMatch) {
-      return true;
-    }
+      const nameMatch = cocktail.strDrink
+        .toLowerCase()
+        .includes(searchText.toLowerCase());
+      const categoryMatch = cocktail.strAlcoholic
+        .toLowerCase()
+        .includes(searchText.toLowerCase());
+      const ingredientMatch =
+        cocktail.strIngredient1
+          .toLowerCase()
+          .includes(searchText.toLowerCase()) ||
+        cocktail.strIngredient2
+          .toLowerCase()
+          .includes(searchText.toLowerCase()) ||
+        cocktail.strIngredient3
+          .toLowerCase()
+          .includes(searchText.toLowerCase()) ||
+        cocktail.strIngredient4
+          .toLowerCase()
+          .includes(searchText.toLowerCase()) ||
+        cocktail.strIngredient5
+          .toLowerCase()
+          .includes(searchText.toLowerCase());
+      if (onSearchByName && nameMatch) {
+        return true;
+      }
 
-    if (onSearchByCategory && categoryMatch) {
-      return true;
-    }
+      if (onSearchByCategory && categoryMatch) {
+        return true;
+      }
 
-    if (onSearchByIngredient && ingredientMatch) {
-      return true;
-    }
+      if (onSearchByIngredient && ingredientMatch) {
+        return true;
+      }
 
-    // Si aucun bouton n'est activé, recherche partout
-    if (!onSearchByName && !onSearchByCategory && !onSearchByIngredient) {
-      return nameMatch || categoryMatch || ingredientMatch;
-    }
+      // Si aucun bouton n'est activé, recherche partout
+      if (!onSearchByName && !onSearchByCategory && !onSearchByIngredient) {
+        return nameMatch || categoryMatch || ingredientMatch;
+      }
 
-    return false;
-  });
-  const allCocktailMiniature = filteredCocktails.map((cocktail) => (
+      return false;
+    });
 
-    <GestureRecognizer key={cocktail.idDrink}
-     >
-      <Pressable
-        // style={styles.buttonProfileModale}
-        onPress={() => handlePressCocktail(cocktail)}
-        onLongPress={() => handleAddFavorie(cocktail)} // Ajout de l'appui long pour le bookmark
-      
-      >
-        <View style={styles.containertop}>
-          <View style={styles.containerCocktailMiniature}>
-          {cocktail.bookmark ? // condition pour affichage du bookmark
-          (<Image style={styles.photoBookmark} source={{ uri: cocktail.strDrinkThumb }}/> ) : 
-          (<Image style={styles.photo} source={{ uri: cocktail.strDrinkThumb }}/>) }
-
-            <Text style={styles.nameunderpic}>
-              {cocktail.bookmark ?
-              (<><FontAwesome5 name="heart" size={20} color="#FF8C00" solid />{' '}</>):
-                null}
-              {cocktail.strDrink}
-            </Text>
+    const selectImageBorderPhotoStyle = (bookmark, visited) => {
+      if (bookmark) {
+        return {
+          width: 130,
+          height: 130,
+          borderRadius: 100,
+          borderColor: "#FF8C00",
+          borderWidth: 4,
+        };
+      } else if (visited) {
+        return {
+          width: 130,
+          height: 130,
+          borderRadius: 100,
+          borderColor: "#FF8C00",
+          borderWidth: 2,
+        };
+      } else {
+        return {
+          width: 130,
+          height: 130,
+          borderRadius: 100,
+          borderColor: "#474CCC",
+          borderWidth: 1,
+        };
+      }
+    };
+    const allCocktailMiniature = filteredCocktails.map((cocktail) => (
+      <GestureRecognizer key={cocktail.idDrink}>
+        <Pressable
+          // style={styles.buttonProfileModale}
+          onPress={() => handlePressCocktail(cocktail)}
+          onLongPress={() => handleAddFavorie(cocktail)} // Ajout de l'appui long pour bookmarked
+        >
+          <View style={styles.containertop}>
+            <View style={styles.containerCocktailMiniature}>
+              <Image
+                style={[
+                  selectImageBorderPhotoStyle(
+                    cocktail.bookmark,
+                    cocktail.visited
+                  ),
+                ]}
+                source={{ uri: cocktail.strDrinkThumb }}
+              />
+              <Text style={styles.nameunderpic}>
+                {cocktail.bookmark ? (
+                  <>
+                    <FontAwesome5
+                      name="heart"
+                      size={20}
+                      color="#FF8C00"
+                      solid
+                    />{" "}
+                  </>
+                ) : null}
+                {cocktail.strDrink}
+              </Text>
+            </View>
           </View>
-        </View>
-      </Pressable>
+        </Pressable>
       </GestureRecognizer>
     ));
-    console.log(allCocktailMiniature.length)
+    console.log(allCocktailMiniature.length);
     setCocktailMiniature(allCocktailMiniature);
-  }, [cocktails, shouldUpdateFromCocktailCard, searchText, onSearchByName, onSearchByCategory, onSearchByIngredient]);
-   
-
+  }, [
+    cocktails,
+    shouldUpdateFromCocktailCard,
+    searchText,
+    onSearchByName,
+    onSearchByCategory,
+    onSearchByIngredient,
+  ]);
 
   return (
     <SafeAreaView style={styles.container}>
-
-           
       <View style={styles.containerTitle}>
-       
-         <Pressable       
-            style={styles.ButtonFetchMini}
-            onPress={() => {
-              handleOnSearchIcon() // ouvre la modal de recherche
-            }}
-            >
+        <Pressable
+          style={styles.ButtonFetchMini}
+          onPress={() => {
+            handleOnSearchIcon(); // ouvre la modal de recherche
+          }}
+        >
           <FontAwesome5 name="search" size={30} color="#FF8C00" />
-         
-          </Pressable>
+        </Pressable>
 
         <Text style={styles.title}>cocktail</Text>
         <Pressable
-            style={styles.ButtonFetchMini}
-            onPress={() => {
-              handleFetchSixMore()
-            }}
-            >
+          style={styles.ButtonFetchMini}
+          onPress={() => {
+            handleFetchSixMore();
+          }}
+        >
           <FontAwesome5 name="plus" size={30} color="#FF8C00" />
-         
-          </Pressable>
-           
+        </Pressable>
       </View>
-      {modalSearch ?
-              
-          <View style={styles.containerModalSearchbar}>
-           <View style={styles.containerSearchbar}>
+      {modalSearch ? (
+        <View style={styles.containerModalSearchbar}>
+          <View style={styles.containerSearchbar}>
             <View>
-              <View style={styles.containerButtonSearchInModalSearch} >
-                  <Pressable
-                    onPress={() => handleSearchButtonNom()}
-                    style={[
-                      styles.buttonSearchInModalSearch,
-                      onSearchByName && styles.activeButton,
-                    ]}
-                  >
-                    <Text style={styles.textSearchButton}>Nom</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleSearchButtonIngredient()}
-                    style={[
-                      styles.buttonSearchInModalSearch,
-                      onSearchByIngredient && styles.activeButton,
-                    ]}
-                  >
-                    <Text style={styles.textSearchButton}>ingredient</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleSearchButtonCategory()}
-                    style={[
-                      styles.buttonSearchInModalSearch,
-                      onSearchByCategory && styles.activeButton,
-                    ]}
-                  >
-                    <Text style={styles.textSearchButton}>catégorie</Text>
-                  </Pressable>
+              <View style={styles.containerButtonSearchInModalSearch}>
+                <Pressable
+                  onPress={() => handleSearchButtonNom()}
+                  style={[
+                    styles.buttonSearchInModalSearch,
+                    onSearchByName && styles.activeButton,
+                  ]}
+                >
+                  <Text style={styles.textSearchButton}>Nom</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => handleSearchButtonIngredient()}
+                  style={[
+                    styles.buttonSearchInModalSearch,
+                    onSearchByIngredient && styles.activeButton,
+                  ]}
+                >
+                  <Text style={styles.textSearchButton}>Ingredient</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => handleSearchButtonCategory()}
+                  style={[
+                    styles.buttonSearchInModalSearch,
+                    onSearchByCategory && styles.activeButton,
+                  ]}
+                >
+                  <Text style={styles.textSearchButton}>Catégorie</Text>
+                </Pressable>
               </View>
             </View>
-            <View style={styles.ContainerpressablesearchInput}>
-            <Pressable onPress={HandleSearchBar} 
-           style={styles.searchInput}
-           >
-              <TextInput
-                  // style={styles.searchInput}
+            <Pressable
+              style={styles.ContainerpressablesearchInput}
+            >
+              <View style={styles.searchInput}>
+                <TextInput
                   placeholder="Rechercher un cocktail dans le reducer"
                   value={searchText}
                   onChangeText={(text) => setSearchText(text)}
                 />
+              </View>
             </Pressable>
-            </View>
           </View>
         </View>
-              :
-                null}
+      ) : null}
       <GestureRecognizer onSwipeLeft={onSwipeLeftHomeToFavorite}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-      <View style={styles.viewcard}>{cocktailMiniature}</View>
-        {/* test a faire sur les margin bot ou padding bot */}
-      </ScrollView>
+        <ScrollView contentContainerStyle={styles.scrollView}>
+          <View style={styles.viewcard}>{cocktailMiniature}</View>
+        </ScrollView>
       </GestureRecognizer>
 
-            {/* Modal */}
-            <Modal
+      {/* Modal qui s'ouvre au click sur une image miniature*/}
+      <Modal
         animationType="slide"
         transparent={false}
         visible={modalCocktailVisible}
@@ -376,16 +361,14 @@ function handleOnSearchIcon(){
           <Pressable
             style={styles.closeButton}
             onPress={() => {
-              setModalCocktailVisible (!modalCocktailVisible);
+              setModalCocktailVisible(!modalCocktailVisible);
               setSelectedCocktail(null);
             }}
           >
             <Text style={styles.closeButtonText}>Fermer</Text>
           </Pressable>
         </View>
-
       </Modal>
-
     </SafeAreaView>
   );
 }
@@ -396,38 +379,33 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f2",
     alignItems: "center",
     paddingTop: 20,
-   
   },
-  containerTitle:{
+  containerTitle: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap:3,
+    gap: 3,
   },
 
   title: {
     // borderColor: "#000CC2", // ajout test centrage div
-    // borderWidth: 1,   // ajout test centrage div 
+    // borderWidth: 1,   // ajout test centrage div
     width: "50%",
-    justifyContent:"center", 
+    justifyContent: "center",
     textAlign: "center",
     fontSize: 38,
     fontWeight: "600",
     color: "#FF8C00",
   },
-  ButtonFetchMini:{
-    // marginLeft:30,
-    // width: "10%",
-    // borderColor: "#000CC2", // ajout test centrage div
-    // borderWidth: 1,   // ajout test centrage div
+  ButtonFetchMini: {
     marginTop: 10,
-    justifyContent:"center",
-    alignContent:"center",
-     color: "#FF8C00",
-   
+    justifyContent: "center",
+    alignContent: "center",
+    color: "#FF8C00",
+
     borderRadius: 5,
   },
-  closeButtonTextMini:{
+  closeButtonTextMini: {
     color: "#fff",
     textAlign: "center",
     fontSize: 38,
@@ -435,25 +413,23 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     alignItems: "center",
-    width: "93%",
+    width: "100%",
   },
 
   viewcard: {
-    marginBottom:"17%",
+    marginBottom: "17%",
     width: "100%",
     flexDirection: "row", // Pour organiser les éléments en ligne
-    flexWrap: "wrap", // Permet au contenu de passer à la ligne en cas de manque d'espace
-    justifyContent: "space-around", //
+    flexWrap: "wrap", // Permet au contenu de passer à la ligne en cas de manque d'espace agrandit la box
+    justifyContent: "space-around", 
   },
   containerCocktailMiniature: {
-    marginLeft:12,
-     maxWidth: 150,
-     justifyContent: "center",
-     alignItems: "center",
-     // borderColor: "#000CC2", // ajout test centrage div
-     // borderWidth: 1,   // ajout test centrage div
-   },
-
+    maxWidth: 150,
+    justifyContent: "center",
+    alignItems: "center",
+    // borderColor: "#000CC2", // ajout test centrage div
+    // borderWidth: 1,   // ajout test centrage div
+  },
 
   ////////////////////////////////////
 
@@ -462,42 +438,24 @@ const styles = StyleSheet.create({
   // Photo et description
   containertop: {
     flexDirection: "row",
-    justifyContent:"space-between" ,
+    justifyContent: "space-between",
     padding: 5,
     alignItems: "flex-start",
     marginBottom: 10,
-    // borderColor: 'red',
-    // borderWidth: 1,
   },
- 
+
   containertopleft: {
-    // borderColor: 'green',
-    // borderWidth: 3,
     maxWidth: 150,
     justifyContent: "center",
     alignItems: "center",
-    // borderColor: "#000CC2", // ajout test centrage div
-    // borderWidth: 1,   // ajout test centrage div
   },
   containertopright: {
     flex: 1,
-    justifyContent: "center", 
+    justifyContent: "center",
     alignItems: "center",
     marginLeft: 20,
+  },
 
-  },
-  txtdescription: {
-    
-    borderWidth: 1,
-    borderRadius: 20,
-    backgroundColor: "#e2e2f3",
-    borderColor: "#FF8C00",
-    fontSize: 16,
-    padding: 10,
-    flex: 1,
-    flexWrap: "wrap", // Permet au texte de passer à la ligne
-    flexDirection: "column", // Disposition verticale des éléments
-  },
 
   nameunderpic: {
     width: "100%",
@@ -506,27 +464,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#474CCC",
     textAlign: "center",
-    //     borderColor: "#000CC2", // ajout test centrage div
-    // borderWidth: 1,   // ajout test centrage div
-    flexWrap: "wrap", // Permet au texte de passer à la ligne
-    flexDirection: "column", // Disposition verticale des éléments
+    flexWrap: "wrap", 
+    flexDirection: "column",
   },
 
-  photo: {
-    // margin: 5,
-    width: 130,
-    height: 130,
-    borderRadius: 100,
-    borderColor: "#FF8C00",
-    borderWidth: 1,
-  },
-  photoBookmark: {
-    width: 130,
-    height: 130,
-    borderRadius: 100,
-    borderColor: "#FF8C00",
-    borderWidth: 4,
-  },
   /////////////////// MODAL MODAL COCKTAIL MODAL ///////
   ////////////                                        ////////
   modalContainer: {
@@ -537,7 +478,7 @@ const styles = StyleSheet.create({
   },
 
   closeButton: {
-    marginTop: 20,
+    marginTop: 0,
     padding: 10,
     backgroundColor: "#474CCC",
     borderRadius: 5,
@@ -548,66 +489,63 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  /////////// MODAL SEARCH BAR //////
+  ///////////////////
 
+  containerModalSearchbar: {
+    width: "100%",
+    // borderColor: "#000CC2", // ajout test centrage div
+    // borderWidth: 1,   // ajout test centrage div
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  containerSearchbar: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
-/////////// MODAL SEARCH BAR //////
-                                  ///////////////////
+  ContainerpressablesearchInput: {
+    flexDirection: "row",
+    width: "65%",
+    paddingTop: 5,
+    marginTop: 5,
+  },
+  searchInput: {
+    height: 35,
+    width: "100%",
+    borderColor: "#FF8C00",
+    borderWidth: 1,
+    borderRadius: 50,
+    color: "#474CCC",
+    justifyContent: "center",
+    paddingLeft: 10,
+  },
+  containerButtonSearchInModalSearch: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "80%",
+  },
+  buttonSearchInModalSearch: {
+    justifyContent: "center",
+    alignItems: "center",
+    borderColor: "#FF8C00",
+    borderWidth: 1,
+    width: "30%",
+    marginTop: 6,
+    borderRadius: 50,
+  },
+  activeButton: {
+    width: "30%",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FF8C00",
+    marginTop: 6,
+    borderRadius: 50,
+  },
 
-containerModalSearchbar:{
-width:"100%",
-// borderColor: "#000CC2", // ajout test centrage div
-// borderWidth: 1,   // ajout test centrage div
-},
-containerSearchbar:{
-  flexDirection:"column",
-  justifyContent: "center",
-  alignItems: "center",
-},
-
-ContainerpressablesearchInput:{
-  flexDirection:"row",
-  width:"60%"
-},
-searchInput: {
-  height: 40,
-  borderColor: '#FF8C00',
-  borderWidth: 1,
-  borderRadius: 50,
-  margin: 10,
-  padding: 10,
-  color:"#474CCC",
-},
-containerButtonSearchInModalSearch:{
-  flexDirection:"row",
-  justifyContent: "space-between",
-  width:"80%",
-  // borderColor: "#000CC2", // ajout test centrage div
-// borderWidth: 1,   // ajout test centrage div
-},
-buttonSearchInModalSearch:{
-  justifyContent: "center",
-  alignItems: "center",
-  marginTop: 10,
-  borderColor: "#FF8C00",
-  borderWidth: 1,
-  width: 100,
-  paddingTop: 4,
-  borderRadius: 50,
-},
-
-
-textSearchButton:{
-  color: "#474CCC",
-  height: 30,
-  fontSize: 16,
-},
-activeButton: {
-  justifyContent: "center",
-  alignItems: "center",
-  marginTop: 10,
-  backgroundColor: "#FF8C00",
-  width: 100,
-  paddingTop: 4,
-  borderRadius: 50,
-},
+  textSearchButton: {
+    color: "#474CCC",
+    fontSize: 16,
+  },
 });
