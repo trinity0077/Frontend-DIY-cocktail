@@ -20,12 +20,10 @@ export default function FavoritesScreen({ navigation }) {
     navigation.navigate("TabNavigator", { screen: "Home" });
   }
 
-  //chargement des donner du reducer cocktails dans la cocktailscard
-  //cela va permetre d'afficher toute les recette qui sont bookmark
-  //via le   if (cocktail.bookmark)...
+  // map pour afficher seulement les cocktail bookmark true
+  // Question à poser sur l'utilité d'une clé "i" lorsque l'on peut utiliser un identifiant unique. 
   const allCocktailUp = cocktails.map((cocktail, i) => {
     if (cocktail.bookmark) {
-      // console.log("/////////", cocktail.bookmark)
 
       return (
         <Cocktailscard
@@ -54,7 +52,7 @@ export default function FavoritesScreen({ navigation }) {
   });
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Favorite</Text>
+      <Text style={styles.title}>Favorites</Text>
       <GestureRecognizer
         style={styles.containerScrollView}
         onSwipeRight={onSwipeRightHomeToFavorite}

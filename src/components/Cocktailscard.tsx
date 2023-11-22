@@ -17,7 +17,7 @@ export default function Cocktailscard(props) {
   );
   const [isBookmark, setIsBookmark] = useState(false);
 
-  // useEffect pour recuperer l'information du bookmark afin d'afficher ou non le menu dans la modal de Home
+  // useEffect pour recuperer l'information du bookmark afin d'afficher ou non le menu dans la modal cocktail selected
   useEffect(() => {
     const cocktail = cocktails.find((e) => e.idDrink === props.idCocktail);
     if (cocktail) {
@@ -126,7 +126,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F0F7FF",
   },
 
-  // Photo et description
   containertop: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -154,8 +153,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 10,
     flex: 1,
-    flexWrap: "wrap", // Permet au texte de passer à la ligne
-    flexDirection: "column", // Disposition verticale des éléments
+    flexWrap: "wrap",
+    flexDirection: "column", 
   },
 
   nameunderpic: {
@@ -165,8 +164,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#474CCC",
     textAlign: "center",
-    //     borderColor: "#000CC2", // ajout test centrage div
-    // borderWidth: 1,   // ajout test centrage div
     flexWrap: "wrap",
     flexDirection: "column",
   },
@@ -198,8 +195,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     textAlign: "center",
     fontWeight: "500",
-    // borderColor: "#000CC2", // ajout test centrage div
-    // borderWidth: 1,   // ajout test centrage div
     fontSize: 22,
   },
   textInfosBigger: {
@@ -213,8 +208,8 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     paddingLeft: 10,
     fontSize: 16,
-    flexWrap: "wrap", // Permet au texte de passer à la ligne
-    flexDirection: "column", // Disposition verticale des éléments
+    flexWrap: "wrap", 
+    flexDirection: "column", 
   },
 
   textButton: {

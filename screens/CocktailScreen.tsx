@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import { useIsFocused } from "@react-navigation/native";
 import GestureRecognizer from "react-native-swipe-gestures";
 import Cocktailscard from "../src/components/Cocktailscard";
 import { getCocktailApi } from "../src/modules/getCocktailApi";
@@ -66,47 +65,51 @@ export default function HomeScreen({ navigation }) {
     setOnSearchByIngredient(!onSearchByIngredient);
     setSearchText(searchText);
   }
-
-  ////////////////////////////////////////////////////////////////////
-
-  // appuie sur l'icone recherche, ouvre les option de recherche
+  // ouvre "la modal" en rapport avec la recherche
   function handleOnSearchIcon() {
     setModalSearch(!modalSearch);
   }
+
+  ////////////////////////////////////////////////////////////////////
+
   // actualise la page "home" quand on met a jour la cardcocktail
   function handleUpdate() {
     sethouldUpdateFromCocktailCard((prev) => !prev);
     // console.log(idCocktail, cocktails.idDrink)
   }
-  // ferme la modal de la recette , quand on suprime la recette,
-  // fonction lancer au click sur la supression dans le composant cocktailscard
-  //permet de revenir sur la page "home" et de fermer la modal qui est ouverte
-  function handleUpdateDelete() {
-    setModalCocktailVisible(!modalCocktailVisible);
-    setSelectedCocktail(null);
-  }
-  // ouvre la fenetre avec la recette du cocktail quand on click su rl image
+
+  // ouvre la modal avec la recette du cocktail au click sur la miniature
+  // charge les informations du cocktail dans le setter et ajoute visited true dans le reducer
   function handlePressCocktail(cocktail: Cocktail) {
     setSelectedCocktail(cocktail);
     setModalCocktailVisible(true);
     dispatch(addCocktailVisited(cocktail.idDrink));
   }
-  // check si le cocktail est deja bookmarké et l'ajoute ou le suprime.
-  //  pas tres jolie methode pour ajouté un cocktail en favorie dans le reducer
+  // ferme la modal de la recette et clean le setter
+  function handleUpdateDelete() {
+    setModalCocktailVisible(!modalCocktailVisible);
+    setSelectedCocktail(null);
+  }
+
+  // Ajouté ou suprime un cocktail en favorie dans le reducer j'aurais du le crée avec boolean
+  // Puis actualise
   function handleAddFavorie(cocktail) {
     if (!cocktail.bookmark) dispatch(addCocktailBookmark(cocktail.idDrink));
     else dispatch(delCocktailBookmark(cocktail.idDrink));
 
     handleUpdate();
   }
-  // navigation netre les pages home ver favorites
+
+  // navigation vers la page favorites au swipe
   function onSwipeLeftHomeToFavorite() {
     navigation.navigate("TabNavigator", { screen: "Favorites" });
   }
-  //compteur retourne a 0 quand l'utilisateur demande + de cocktail
+
+  // compté qui relance l' useEffect fetchDataWithModuleGetCocktailApi();
   const handleFetchSixMore = () => {
     setFetchCount(0);
   };
+
   // Fetch data from Api and dispatch in reducer cocktail
   useEffect(() => {
     const fetchDataWithModuleGetCocktailApi = async () => {
@@ -129,8 +132,8 @@ export default function HomeScreen({ navigation }) {
       }
   }, [fetchCount]),
 
-  // Update les minicard dans le scrolling view en correlation avec la recherche.
-  // indique aussi le style des images en rapport au favorie / visit ou jamais vu.
+  // Met à jour les miniatures en corrélation avec la recherche.
+  // Applique également le style des images en fonction de leur statut : bookmark, visited ou jamais vu.
   useEffect(() => {
     const filteredCocktails = cocktails.filter((cocktail) => {
       const nameMatch = cocktail.strDrink
@@ -205,9 +208,8 @@ export default function HomeScreen({ navigation }) {
     const allCocktailMiniature = filteredCocktails.map((cocktail) => (
       <GestureRecognizer key={cocktail.idDrink}>
         <Pressable
-          // style={styles.buttonProfileModale}
           onPress={() => handlePressCocktail(cocktail)}
-          onLongPress={() => handleAddFavorie(cocktail)} // Ajout de l'appui long pour bookmarked
+          onLongPress={() => handleAddFavorie(cocktail)} // Ajout de l'appui long pour bookmarked true or false
         >
           <View style={styles.containertop}>
             <View style={styles.containerCocktailMiniature}>
@@ -238,7 +240,7 @@ export default function HomeScreen({ navigation }) {
         </Pressable>
       </GestureRecognizer>
     ));
-    console.log(allCocktailMiniature.length);
+    // console.log(allCocktailMiniature.length);
     setCocktailMiniature(allCocktailMiniature);
   }, [
     cocktails,
@@ -265,12 +267,14 @@ export default function HomeScreen({ navigation }) {
         <Pressable
           style={styles.ButtonFetchMini}
           onPress={() => {
-            handleFetchSixMore();
+            handleFetchSixMore(); 
           }}
         >
           <FontAwesome5 name="plus" size={30} color="#FF8C00" />
         </Pressable>
       </View>
+
+     {/* Modal de la barre de recherche qui s'ouvre au click sur l'icone loupe*/}
       {modalSearch ? (
         <View style={styles.containerModalSearchbar}>
           <View style={styles.containerSearchbar}>
@@ -319,13 +323,14 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
       ) : null}
+
       <GestureRecognizer onSwipeLeft={onSwipeLeftHomeToFavorite}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <View style={styles.viewcard}>{cocktailMiniature}</View>
+          <View style={styles.viewcard}>{cocktailMiniature}</View>  
         </ScrollView>
       </GestureRecognizer>
 
-      {/* Modal qui s'ouvre au click sur une image miniature*/}
+      {/* Modal qui s'ouvre au click sur une miniature*/}
       <Modal
         animationType="slide"
         transparent={false}
@@ -419,8 +424,8 @@ const styles = StyleSheet.create({
   viewcard: {
     marginBottom: "17%",
     width: "100%",
-    flexDirection: "row", // Pour organiser les éléments en ligne
-    flexWrap: "wrap", // Permet au contenu de passer à la ligne en cas de manque d'espace agrandit la box
+    flexDirection: "row", // Organise les éléments en ligne
+    flexWrap: "wrap", // Permet au contenu de passer à la ligne en cas de manque d'espace "agrandit la box"
     justifyContent: "space-around", 
   },
   containerCocktailMiniature: {
@@ -431,11 +436,10 @@ const styles = StyleSheet.create({
     // borderWidth: 1,   // ajout test centrage div
   },
 
-  ////////////////////////////////////
+ 
+  /////////////////// MODAL COCKTAIL selected
 
-  // Ajout des css pour modal et cocktail
 
-  // Photo et description
   containertop: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -456,7 +460,6 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
 
-
   nameunderpic: {
     width: "100%",
     fontSize: 20,
@@ -468,8 +471,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
 
-  /////////////////// MODAL MODAL COCKTAIL MODAL ///////
-  ////////////                                        ////////
+
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -489,8 +491,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  /////////// MODAL SEARCH BAR //////
-  ///////////////////
+  /////////// MODAL SEARCH BAR 
+
 
   containerModalSearchbar: {
     width: "100%",

@@ -41,30 +41,24 @@ export const userSlice = createSlice({
   reducers: {
 
     addCocktailBookmark: (state, action: PayloadAction<string>) => {
-      // Trouver l'index du cocktail dans le tableau
+      // Recherche dans le tableau l'index du cocktail envoyé via le payload
+      // Si l'index est trouvé, mettre à jour la propriété bookmark
       const index = state.value.listCocktails.findIndex(cocktail => cocktail.idDrink === action.payload);
 
-      // Si l'index est trouvé, mettre à jour la propriété bookmark
       if (index !== -1) {
         state.value.listCocktails[index].bookmark = true;
       } 
     },
-
+    // question à poser "boolean" Bonne pratique
     delCocktailBookmark: (state, action: PayloadAction<string>) => {
-      // Trouver l'index du cocktail dans le tableau
       const index = state.value.listCocktails.findIndex(cocktail => cocktail.idDrink === action.payload);
-
-      // Si l'index est trouvé, mettre à jour la propriété bookmark
       if (index !== -1) {
         state.value.listCocktails[index].bookmark = false;
       } 
     },
 
     addCocktailVisited: (state, action: PayloadAction<string>) => {
-      // Trouver l'index du cocktail dans le tableau
       const index = state.value.listCocktails.findIndex(cocktail => cocktail.idDrink === action.payload);
-
-      // Si l'index est trouvé, mettre à jour la propriété visited
       if (index !== -1) {
         state.value.listCocktails[index].visited = true;
       } 
@@ -92,7 +86,8 @@ export const userSlice = createSlice({
     strMeasure5: action.payload.strMeasure5 || "",
   };
 
-  // Ajouter le cocktail avec la propriété bookmark définie sur false
+  // Ajoute la propriété bookmark et visited définie sur false à l'objet Cocktail
+  // et le place au debut du tableau listCocktails
   state.value.listCocktails.unshift({
     ...sanitizedCocktail,
     bookmark: false,

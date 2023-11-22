@@ -18,7 +18,7 @@ export const getCocktailApi = async (dispatch, cocktails) => {
 
         if (!isCocktailExists) {
           dispatch(addCocktail(newCocktail));
-          // return true pour mettre a jour le compteur et verifier que le fetch à réussi.
+          // return true pour mettre à jour le compteur et indiquer que le fetch à réussi.
           return true
         } else {
           console.log(
