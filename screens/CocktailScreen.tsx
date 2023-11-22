@@ -131,6 +131,7 @@ export default function HomeScreen({ navigation }) {
         }, delay); 
       }
   }, [fetchCount]),
+  
 
   // Met à jour les miniatures en corrélation avec la recherche.
   // Applique également le style des images en fonction de leur statut : bookmark, visited ou jamais vu.
@@ -240,7 +241,7 @@ export default function HomeScreen({ navigation }) {
         </Pressable>
       </GestureRecognizer>
     ));
-    // console.log(allCocktailMiniature.length);
+    console.log(allCocktailMiniature.length);
     setCocktailMiniature(allCocktailMiniature);
   }, [
     cocktails,

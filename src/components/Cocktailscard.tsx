@@ -32,7 +32,7 @@ export default function Cocktailscard(props) {
 
   const handleAddFavorie = (idCocktail) => {
     dispatch(addCocktailBookmark(idCocktail));
-    props.onUpdate(idCocktail);
+     props.onUpdate(idCocktail);
   };
 
   const handleLeaveFavorie = (idCocktail) => {
