@@ -35,7 +35,7 @@ export default function HomeScreen({ navigation }) {
   );
   const [fetchCount, setFetchCount] = useState(0);
   const [cocktailMiniature, setCocktailMiniature] = useState([]);
-  const [shouldUpdateFromCocktailCard, sethouldUpdateFromCocktailCard] =
+  const [shouldUpdateFromCocktailCard, setshouldUpdateFromCocktailCard] =
     useState(false);
   const [modalCocktailVisible, setModalCocktailVisible] = useState(false);
   // setter pour la bar et les boutons relative à la recherche
@@ -74,7 +74,7 @@ export default function HomeScreen({ navigation }) {
 
   // actualise la page "home" quand on met a jour la cardcocktail
   function handleUpdate() {
-    sethouldUpdateFromCocktailCard((prev) => !prev);
+    setshouldUpdateFromCocktailCard((prev) => !prev);
     // console.log(idCocktail, cocktails.idDrink)
   }
 
