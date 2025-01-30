@@ -9,6 +9,8 @@ import {
   removeCocktail,
 } from "../../reducers/cocktail";
 
+// modif a prevoir pour passé de font awesome a lucide
+// verifier les modification apporté a l'api
 export default function Cocktailscard(props) {
   const dispatch = useDispatch();
   const cocktails = useSelector(

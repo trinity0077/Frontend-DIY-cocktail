@@ -47,6 +47,10 @@ export default function HomeScreen({ navigation }) {
 
   /////////// action en rapport avec la recherche ////////////////////
 
+
+  ///
+// Voir pour éviter la redondance
+  ///
   function handleSearchButtonNom() {
     setOnSearchByName(!onSearchByName);
     setOnSearchByCategory(false);

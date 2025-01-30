@@ -49,7 +49,7 @@ export const userSlice = createSlice({
         state.value.listCocktails[index].bookmark = true;
       } 
     },
-    // question à poser "boolean" Bonne pratique
+    // trouver sur le net "boolean" Bonne pratique à vérifier
     delCocktailBookmark: (state, action: PayloadAction<string>) => {
       const index = state.value.listCocktails.findIndex(cocktail => cocktail.idDrink === action.payload);
       if (index !== -1) {

@@ -21,7 +21,8 @@ export default function FavoritesScreen({ navigation }) {
   }
 
   // map pour afficher seulement les cocktail bookmark true
-  // Question à poser sur l'utilité d'une clé "i" lorsque l'on peut utiliser un identifiant unique. 
+  // Vérifier l'utilité d'une clé "i" lorsque l'on peut utiliser un identifiant unique. 
+  
   const allCocktailUp = cocktails.map((cocktail, i) => {
     if (cocktail.bookmark) {
 

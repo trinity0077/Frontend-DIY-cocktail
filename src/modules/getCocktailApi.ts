@@ -27,7 +27,7 @@ export const getCocktailApi = async (dispatch, cocktails) => {
           return false
         }
       } else {
-        console.error("No drinks data found");
+        console.error("No drinks data found");//
       }
     } catch (error) {
       console.error("Error fetching data:", error);
