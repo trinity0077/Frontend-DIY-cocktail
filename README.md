@@ -21,5 +21,5 @@ Cette page mappe toute la liste des cocktails ajoutés en favoris et les affiche
 Prévision pour la suite :
 
 Rendre la box de description des Cocktailscard scrollable dans la modal de la page Home.
-Voir aussi pour passer les icônes en FontAwesome 6 et gérer l'erreur TypeScript qui s'y trouve.
-Affiner le typage des variables.
+Remplacement des icone par lucide.
+Affiner le typage des variables, et refactorisé le système de recherche
